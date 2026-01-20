@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Breast Cancer Prediction System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Breast Cancer Prediction</h1>
+            <p>Enter the tumor features below to generate a prediction.</p>
+        </header>
+
+        <main>
+            <form id="predictionForm">
+                <div class="form-group">
+                    <label for="radius_mean">Radius Mean</label>
+                    <input type="number" step="any" id="radius_mean" name="radius_mean" required placeholder="e.g. 14.19">
+                    <small>Mean of distances from center to points on the perimeter</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="texture_mean">Texture Mean</label>
+                    <input type="number" step="any" id="texture_mean" name="texture_mean" required placeholder="e.g. 19.68">
+                    <small>Standard deviation of gray-scale values</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="perimeter_mean">Perimeter Mean</label>
+                    <input type="number" step="any" id="perimeter_mean" name="perimeter_mean" required placeholder="e.g. 91.25">
+                    <small>Mean size of the core tumor</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="area_mean">Area Mean</label>
+                    <input type="number" step="any" id="area_mean" name="area_mean" required placeholder="e.g. 597.9">
+                    <small>Mean area of the tumor</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="concavity_mean">Concavity Mean</label>
+                    <input type="number" step="any" id="concavity_mean" name="concavity_mean" required placeholder="e.g. 0.08">
+                    <small>Mean of severity of concave portions of the contour</small>
+                </div>
+
+                <button type="submit" id="predictBtn">Predict Diagnosis</button>
+            </form>
+
+            <div id="result" class="result-card hidden">
+                <h2>Prediction Result:</h2>
+                <div id="predictionValue" class="prediction-value"></div>
+                <p>Confidence: <span id="confidenceValue"></span></p>
+            </div>
+        </main>
+
+        <footer>
+            <p class="disclaimer">Note: This system is for educational purposes only and must not be used as a medical diagnostic tool.</p>
+        </footer>
+    </div>
+
+    <script>
+        document.getElementById('predictionForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                radius_mean: document.getElementById('radius_mean').value,
+                texture_mean: document.getElementById('texture_mean').value,
+                perimeter_mean: document.getElementById('perimeter_mean').value,
+                area_mean: document.getElementById('area_mean').value,
+                concavity_mean: document.getElementById('concavity_mean').value
+            };
+
+            const btn = document.getElementById('predictBtn');
+            const resultDiv = document.getElementById('result');
+            const predictionValue = document.getElementById('predictionValue');
+            
+            btn.textContent = 'Analyzing...';
+            btn.disabled = true;
+            resultDiv.classList.add('hidden');
+
+            try {
+                constresponse = await fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData),
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    predictionValue.textContent = data.prediction;
+                    document.getElementById('confidenceValue').textContent = data.confidence;
+                    
+                    resultDiv.classList.remove('hidden');
+                    resultDiv.classList.remove('benign', 'malignant');
+                    resultDiv.classList.add(data.prediction.toLowerCase());
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                alert('An error occurred. Please try again.');
+                console.error(error);
+            } finally {
+                btn.textContent = 'Predict Diagnosis';
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+Name: [Your Full Name Here]
+Matric Number: [Your Matric Number Here]
+Machine Learning Algorithm Used: Logistic Regression
+Model persistence method used: Joblib
+Live URL of the hosted application: [Paste Render/PythonAnywhere URL Here]
+GitHub repository link: [Paste GitHub Repository URL Here]
